@@ -23,6 +23,19 @@ module "alb_with_auth" {
   auth_client_id     = "XXX"
   auth_client_secret = "YYY"
 
+  tg = {
+    name     = "alb-bi-ssrs"
+    port     = "33555"
+    protocol = "HTTP"
+
+    healthcheck = {
+      port     = "traffic-port"
+      protocol = "HTTP"
+      matcher  = "401"
+      path     = "/reports/browse/"
+    }
+  }
+
   common_tags = {
     project = local.project
     env     = local.environment

@@ -2,10 +2,18 @@ resource "aws_alb" "this" {
   name     = "alb-${var.project}-${var.env}"
   internal = false
 
-  security_groups = [aws_security_group.this.id]
-  subnets         = var.alb_subnets
+  security_groups            = [aws_security_group.this.id]
+  subnets                    = var.alb_subnets
+  enable_deletion_protection = true
+  idle_timeout               = 3600
 
-  tags            = var.common_tags
+  access_logs {
+    bucket  = "jetbrains-bi-data"
+    prefix  = "alb-bi-prod-logs"
+    enabled = true
+  }
+
+  tags = var.common_tags
 }
 
 resource "aws_alb_listener" "http" {
@@ -56,15 +64,27 @@ resource "aws_alb_listener" "https" {
 }
 
 resource "aws_alb_target_group" "this" {
-  name = "alb-${var.project}-${var.env}"
+  name     = var.tg.name
+  port     = var.tg.port
+  protocol = var.tg.protocol
 
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
+  vpc_id = var.vpc_id
+  deregistration_delay = 120
 
   health_check {
-    port     = 80
-    protocol = "HTTP"
+    port                = var.tg.healthcheck.port
+    protocol            = var.tg.healthcheck.protocol
+    matcher             = var.tg.healthcheck.matcher
+    path                = var.tg.healthcheck.path
+    interval            = 60
+    unhealthy_threshold = 2
+    timeout             = 2
+  }
+
+  stickiness {
+    cookie_duration = 86400
+    enabled         = false
+    type            = "lb_cookie"
   }
 
   tags = var.common_tags
