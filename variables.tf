@@ -19,3 +19,9 @@ variable "auth_scope" { default = "openid profile" }
 
 variable tg {}
 variable cert_validation { default = true }
+
+variable alb_access_logs_enabled { default = true }
+variable alb_access_logs_prefix { default = "" }
+variable alb_access_logs_bucket { default = "" }
+variable alb_delete_protection { default = true }
+variable alb_idle_timeout { default = 300 }

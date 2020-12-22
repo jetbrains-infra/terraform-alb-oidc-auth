@@ -4,13 +4,13 @@ resource "aws_alb" "this" {
 
   security_groups            = [aws_security_group.this.id]
   subnets                    = var.alb_subnets
-  enable_deletion_protection = true
-  idle_timeout               = 3600
+  enable_deletion_protection = var.alb_delete_protection
+  idle_timeout               = var.alb_idle_timeout
 
   access_logs {
-    bucket  = "jetbrains-bi-data"
-    prefix  = "alb-bi-prod-logs"
-    enabled = true
+    bucket  = var.alb_access_logs_bucket
+    prefix  = var.alb_access_logs_prefix
+    enabled = var.alb_access_logs_enabled
   }
 
   tags = var.common_tags
@@ -68,23 +68,23 @@ resource "aws_alb_target_group" "this" {
   port     = var.tg.port
   protocol = var.tg.protocol
 
-  vpc_id = var.vpc_id
-  deregistration_delay = 120
+  vpc_id               = var.vpc_id
+  deregistration_delay = var.tg.deregistration_delay
 
   health_check {
     port                = var.tg.healthcheck.port
     protocol            = var.tg.healthcheck.protocol
     matcher             = var.tg.healthcheck.matcher
     path                = var.tg.healthcheck.path
-    interval            = 60
-    unhealthy_threshold = 2
-    timeout             = 2
+    interval            = var.tg.healthcheck.interval
+    unhealthy_threshold = var.tg.healthcheck.unhealthy_th
+    timeout             = var.tg.healthcheck.timeout
   }
 
   stickiness {
-    cookie_duration = 86400
-    enabled         = false
-    type            = "lb_cookie"
+    enabled         = var.tg.stickness.enabled
+    type            = var.tg.stickness.type
+    cookie_duration = var.tg.stickness.cookie_duration
   }
 
   tags = var.common_tags

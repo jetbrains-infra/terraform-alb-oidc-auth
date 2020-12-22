@@ -37,6 +37,7 @@ resource "aws_security_group" "backends" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "allow all egress"
   }
+
   ingress {
     from_port   = 0
     to_port     = 0
@@ -44,6 +45,7 @@ resource "aws_security_group" "backends" {
     self        = true
     description = "allow all inside sg"
   }
+
   ingress {
     from_port       = 0
     to_port         = 0
@@ -51,5 +53,6 @@ resource "aws_security_group" "backends" {
     security_groups = [aws_security_group.this.id]
     description     = "allow all inside sg"
   }
+
   tags = var.common_tags
 }
